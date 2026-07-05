@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 台灣遺產稅試算器</title>
+    <style>
+        /* 基礎設定與米白色背景 */
+        body {
+            font-family: 'Helvetica Neue', Arial, 'LiHei Pro', '微軟正黑體', sans-serif;
+            background-color: #FDFBF7; /* 米白色背景 */
+            color: #333333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 雙欄排版容器 */
+        .layout-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            max-width: 900px;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* 左側：計算機卡片 */
+        .calculator-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            flex: 1 1 450px; /* 基礎寬度，會隨螢幕縮放 */
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        /* 右側：級距資訊卡片 */
+        .info-panel {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            flex: 1 1 300px; /* 基礎寬度，會隨螢幕縮放 */
+            padding: 30px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 22px;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 15px;
+        }
+
+        /* 表單元素樣式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #319795;
+            box-shadow: 0 0 0 2px rgba(49, 151, 149, 0.2);
+        }
+
+        .hint {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        /* 輸出結果區塊樣式 */
+        .result-box {
+            background-color: #ebf8fa;
+            border-left: 4px solid #319795;
+            padding: 20px;
+            border-radius: 4px 8px 8px 4px;
+            margin-top: 30px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight-net {
+            font-weight: bold;
+            color: #d97706;
+            font-size: 18px;
+        }
+
+        .highlight-tax {
+            font-weight: bold;
+            color: #e53e3e;
+            font-size: 20px;
+            border-top: 1px dashed #cbd5e0;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .zero-tax {
+            color: #38a169;
+        }
+
+        /* 右側級距列表樣式 */
+        .bracket-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .bracket-item {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-left: 4px solid #48bb78; /* 預設綠色 (10%) */
+        }
+
+        .bracket-item.level-15 {
+            border-left-color: #ecc94b; /* 黃色 (15%) */
+        }
+
+        .bracket-item.level-20 {
+            border-left-color: #f56565; /* 紅色 (20%) */
+        }
+
+        .bracket-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2d3748;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bracket-rate {
+            font-size: 18px;
+        }
+
+        .bracket-desc {
+            font-size: 14px;
+            color: #718096;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout-wrapper">
+    <div class="calculator-container">
+        <h2>2026 遺產稅快速試算</h2>
+        
+        <div class="form-group">
+            <label for="totalEstate">遺產總額 (單位：萬元)</label>
+            <input type="number" id="totalEstate" placeholder="請輸入總金額，例如：3000" min="0" oninput="calculateTax()">
+        </div>
+
+        <div class="form-group">
+            <label for="hasSpouse">配偶是否健在？</label>
+            <select id="hasSpouse" onchange="calculateTax()">
+                <option value="yes">是 (扣除 553 萬)</option>
+                <option value="no" selected>否 (無扣除額)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="childrenCount">子女數量 (人)</label>
+            <input type="number" id="childrenCount" value="0" min="0" oninput="calculateTax()">
+            <div class="hint">每位子女扣除 56 萬</div>
+        </div>
+
+        <div class="form-group">
+            <label for="parentsCount">父母健在數量 (人)</label>
+            <select id="parentsCount" onchange="calculateTax()">
+                <option value="0" selected>0 人</option>
+                <option value="1">1 人 (扣除 138 萬)</option>
+                <option value="2">2 人 (扣除 276 萬)</option>
+            </select>
+        </div>
+
+        <div class="result-box">
+            <div class="result-item">
+                <span>基本免稅額 + 喪葬費：</span>
+                <span id="outBasic">1,471 萬元</span>
+            </div>
+            <div class="result-item">
+                <span>家庭親屬扣除額：</span>
+                <span id="outFamily">0 萬元</span>
+            </div>
+            <div class="result-item highlight-net">
+                <span>遺產淨額：</span>
+                <span id="outNet">0 萬元</span>
+            </div>
+            <div class="result-item highlight-tax" id="taxResultContainer">
+                <span>預估應納遺產稅：</span>
+                <span id="outTax" class="zero-tax">免徵遺產稅</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h2>📊 遺產淨額課稅級距</h2>
+        <ul class="bracket-list">
+            <li class="bracket-item">
+                <div class="bracket-title">
+                    <span>5,621 萬元以下</span>
+                    <span class="bracket-rate" style="color: #48bb78;">10%</span>
+                </div>
+                <p class="bracket-desc">免扣除累進差額</p>
+            </li>
+            <li class="bracket-item level-15">
+                <div class="bracket-title">
+                    <span>5,621 萬 ~ 1億1,242 萬</span>
+                    <span class="bracket-rate" style="color: #d69e2e;">15%</span>
+                </div>
+                <p class="bracket-desc">需扣除累進差額 281.05 萬</p>
+            </li>
+            <li class="bracket-item level-20">
+                <div class="bracket-title">
+                    <span>1億1,242 萬元以上</span>
+                    <span class="bracket-rate" style="color: #e53e3e;">20%</span>
+                </div>
+                <p class="bracket-desc">需扣除累進差額 843.15 萬</p>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const BASIC_EXEMPTION = 1333;
+    const FUNERAL_DEDUCTION = 138;
+    const SPOUSE_DEDUCTION = 553;
+    const CHILD_DEDUCTION = 56;
+    const PARENT_DEDUCTION = 138;
+
+    function calculateTax() {
+        const totalEstate = parseFloat(document.getElementById('totalEstate').value) || 0;
+        const hasSpouse = document.getElementById('hasSpouse').value === 'yes';
+        const childrenCount = parseInt(document.getElementById('childrenCount').value) || 0;
+        const parentsCount = parseInt(document.getElementById('parentsCount').value) || 0;
+
+        const fixedDeduction = BASIC_EXEMPTION + FUNERAL_DEDUCTION; 
+        
+        let familyDeduction = 0;
+        if (hasSpouse) familyDeduction += SPOUSE_DEDUCTION;
+        familyDeduction += (childrenCount * CHILD_DEDUCTION);
+        familyDeduction += (parentsCount * PARENT_DEDUCTION);
+
+        let netEstate = totalEstate - fixedDeduction - familyDeduction;
+        if (netEstate < 0) netEstate = 0;
+
+        let payableTax = 0;
+        if (netEstate > 0) {
+            if (netEstate <= 5621) {
+                payableTax = netEstate * 0.10;
+            } else if (netEstate <= 11242) {
+                payableTax = (netEstate * 0.15) - 281.05;
+            } else {
+                payableTax = (netEstate * 0.20) - 843.15;
+            }
+        }
+
+        document.getElementById('outFamily').innerText = familyDeduction.toLocaleString() + ' 萬元';
+        document.getElementById('outNet').innerText = netEstate.toLocaleString() + ' 萬元';
+        
+        const outTaxElement = document.getElementById('outTax');
+        if (netEstate === 0 || totalEstate === 0) {
+            outTaxElement.innerText = '免徵遺產稅';
+            outTaxElement.className = 'zero-tax';
+        } else {
+            outTaxElement.innerText = payableTax.toLocaleString('zh-TW', {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' 萬元';
+            outTaxElement.className = ''; 
+        }
+    }
+
+    window.onload = calculateTax;
+</script>
+
+</body>
+</html>
