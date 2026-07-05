@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>你以為的錢,夠花嗎?通膨購買力計算器</title>
+<meta name="description" content="輸入起始金額、通膨率與年數,看看名目金額不變時,實際購買力如何逐年被通膨侵蝕。" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F7F3EA;
+    --surface: #FFFFFF;
+    --ink: #2B2620;
+    --ink-secondary: #6E6558;
+    --ink-muted: #9C927F;
+    --border: #E4DDCC;
+    --accent: #B5501F;
+    --accent-soft: #F2DDCB;
+    --accent-ink: #7A3512;
+    --nominal: #A79E8C;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+  header{ margin-bottom: 40px; }
+  .eyebrow{
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+  h1{
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.3;
+    margin: 0 0 12px;
+    letter-spacing: 0.01em;
+  }
+  h1 .accent{ color: var(--accent); }
+  .subtitle{
+    font-size: 16px;
+    color: var(--ink-secondary);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 56ch;
+  }
+  .panel{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+  .controls{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 620px){
+    .controls{ grid-template-columns: 1fr; }
+  }
+  .field label{
+    display:block;
+    font-size: 13px;
+    color: var(--ink-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .field .row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+  }
+  input[type="number"]{
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 16px;
+    padding: 0 12px;
+    font-family: inherit;
+  }
+  input[type="number"]:focus{
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  input[type="range"]{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .readout{
+    min-width: 56px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-panel{
+    padding: 28px 20px 12px;
+  }
+  .legend{
+    display:flex;
+    gap: 20px;
+    margin-bottom: 8px;
+    padding-left: 8px;
+  }
+  .legend span{
+    display:flex;
+    align-items:center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ink-secondary);
+  }
+  .swatch{ width: 16px; height: 3px; border-radius: 2px; display:inline-block; }
+  .chart-box{ position: relative; height: 320px; }
+  .cards{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 8px;
+  }
+  @media (max-width: 620px){
+    .cards{ grid-template-columns: 1fr; }
+  }
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .card .label{
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin: 0 0 6px;
+    font-weight: 500;
+  }
+  .card .value{
+    font-family: 'Noto Serif TC', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+  .card .nominal-note{
+    font-size: 12px;
+    color: var(--ink-secondary);
+    margin: 0 0 10px;
+  }
+  .badge{
+    display:inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+  }
+  footer{
+    margin-top: 36px;
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">資產最大的殺手:通貨膨脹</span>
+    <h1>你以為的 <span class="accent" id="hero-amount">28,000</span>,<br/>二十年後夠花嗎?</h1>
+    <p class="subtitle">名目金額(帳面上的數字)從不會自己減少,但通貨膨脹會不斷侵蝕它能買到的東西。調整下方的起始金額、通膨率與年數,看看實際購買力如何逐年下滑。</p>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="field">
+        <label for="amount">起始金額(元)</label>
+        <input type="number" id="amount" value="28000" step="1000" />
+      </div>
+      <div class="field">
+        <label for="rate">通膨率</label>
+        <div class="row">
+          <input type="range" id="rate" min="0.5" max="8" step="0.1" value="2" />
+          <span class="readout" id="rate-out">2.0%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="years">年數上限</label>
+        <div class="row">
+          <input type="range" id="years" min="10" max="60" step="1" value="50" />
+          <span class="readout" id="years-out">50 年</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel chart-panel">
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--nominal); border-top: 2px dashed var(--nominal); height:0;"></span>名目金額(帳面值)</span>
+      <span><span class="swatch" style="background:var(--accent);"></span>實際購買力</span>
+    </div>
+    <div class="chart-box">
+      <canvas id="chart" role="img" aria-label="折線圖:名目金額維持不變,實際購買力隨年數與通膨率增加而下降">名目金額固定,實際購買力隨時間下降的曲線圖</canvas>
+    </div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <footer>
+    此工具僅為教育示範用途,以「實際購買力 = 起始金額 ÷ (1 + 通膨率) ^ 年數」的簡化公式計算,並未考慮利息、投資報酬、稅賦或實際物價結構變化,請勿作為財務規劃的唯一依據。
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+(function(){
+  var amountEl = document.getElementById('amount');
+  var rateEl = document.getElementById('rate');
+  var yearsEl = document.getElementById('years');
+  var rateOut = document.getElementById('rate-out');
+  var yearsOut = document.getElementById('years-out');
+  var heroAmount = document.getElementById('hero-amount');
+  var cardsEl = document.getElementById('cards');
+  var ctx = document.getElementById('chart');
+  var chart = null;
+
+  function fmt(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+  function fmtPlain(n){ return Math.round(n).toLocaleString('en-US'); }
+
+  function getAmount(){
+    var v = parseFloat(amountEl.value);
+    if (isNaN(v) || v <= 0) v = 0;
+    return v;
+  }
+
+  function computeSeries(amount, rate, maxYears){
+    var labels = [];
+    var real = [];
+    var nominal = [];
+    var r = rate / 100;
+    for (var y = 0; y <= maxYears; y++){
+      labels.push(y);
+      nominal.push(amount);
+      real.push(amount / Math.pow(1 + r, y));
+    }
+    return { labels: labels, real: real, nominal: nominal };
+  }
+
+  function milestoneYears(maxYears){
+    return [0, Math.round(maxYears / 2), maxYears];
+  }
+
+  function render(){
+    var amount = getAmount();
+    var rate = parseFloat(rateEl.value);
+    var maxYears = parseInt(yearsEl.value, 10);
+
+    rateOut.textContent = rate.toFixed(1) + '%';
+    yearsOut.textContent = maxYears + ' 年';
+    heroAmount.textContent = fmtPlain(amount);
+
+    var data = computeSeries(amount, rate, maxYears);
+
+    if (chart){
+      chart.data.labels = data.labels;
+      chart.data.datasets[0].data = data.nominal;
+      chart.data.datasets[1].data = data.real;
+      chart.update('none');
+    } else {
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: '名目金額(帳面值)',
+              data: data.nominal,
+              borderColor: '#A79E8C',
+              borderDash: [6,4],
+              borderWidth: 2,
+              pointRadius: 0,
+              tension: 0
+            },
+            {
+              label: '實際購買力',
+              data: data.real,
+              borderColor: '#B5501F',
+              borderWidth: 2.5,
+              pointRadius: 0,
+              tension: 0.15,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#2B2620',
+              titleFont: { family: 'Noto Sans TC' },
+              bodyFont: { family: 'Noto Sans TC' },
+              callbacks: {
+                title: function(items){ return '第 ' + items[0].label + ' 年'; },
+                label: function(item){ return item.dataset.label + ': ' + fmt(item.parsed.y); }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: '年數', color: '#6E6558', font: { family: 'Noto Sans TC' } },
+              grid: { display: false },
+              ticks: { color: '#9C927F', font: { family: 'Noto Sans TC' } }
+            },
+            y: {
+              title: { display: true, text: '金額', color: '#6E6558', font: { family: 'Noto Sans TC' } },
+              ticks: {
+                color: '#9C927F',
+                font: { family: 'Noto Sans TC' },
+                callback: function(v){ return '$' + (v/1000) + 'k'; }
+              },
+              grid: { color: '#E4DDCC' }
+            }
+          }
+        }
+      });
+    }
+
+    var ms = milestoneYears(maxYears);
+    var labelsForMs = ['起點(第 0 年)', '第 ' + ms[1] + ' 年', '第 ' + ms[2] + ' 年'];
+    var html = '';
+    for (var i = 0; i < ms.length; i++){
+      var y = ms[i];
+      var realVal = amount / Math.pow(1 + rate/100, y);
+      var pct = amount > 0 ? Math.round((1 - realVal/amount) * 100) : 0;
+      html += '<div class="card">' +
+        '<p class="label">' + labelsForMs[i] + '</p>' +
+        '<p class="value">' + fmt(realVal) + '</p>' +
+        '<p class="nominal-note">名目仍是 ' + fmt(amount) + '</p>' +
+        '<span class="badge">購買力↓' + pct + '%</span>' +
+        '</div>';
+    }
+    cardsEl.innerHTML = html;
+  }
+
+  amountEl.addEventListener('input', render);
+  rateEl.addEventListener('input', render);
+  yearsEl.addEventListener('input', render);
+  render();
+})();
+</script>
+</body>
+</html>
