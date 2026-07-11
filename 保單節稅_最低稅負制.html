@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保單理賠稅務判定指南</title>
+    
+    <!-- 引入 Google Fonts: 思源黑體 (Noto Sans TC) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- 引入 Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    
+    <!-- 針對 Tailwind 進行基礎字體與顏色自定義 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        // 將思源黑體設定為第一優先順位
+                        sans: ['"Noto Sans TC"', 'Inter', 'Helvetica Neue', 'Arial', '微軟正黑體', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* 隱藏預設捲軸，讓介面更乾淨 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* 簡單的淡入動畫 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* 強制覆蓋 Mermaid 流程圖內的字體設定，確保顯示思源黑體 */
+        .mermaid, .mermaid svg, .mermaid svg * {
+            font-family: "Noto Sans TC", sans-serif !important;
+        }
+    </style>
+</head>
+<!-- 使用米白背景 (#FDFBF7)，搭配全螢幕置中佈局 -->
+<body class="bg-[#FDFBF7] min-h-screen text-slate-800 p-4 md:p-8 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- 頂部標題區塊 -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-indigo-600">保單理賠稅務</span> 判定指南
+            </h1>
+            <p class="text-slate-500 max-w-2xl mx-auto text-sm md:text-base">
+                破解最低稅負制迷思！透過簡單的互動問答，快速判定死亡理賠金是否需要繳納遺產稅或所得稅。
+            </p>
+        </div>
+
+        <!-- 主內容區：雙欄網格佈局 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- 左側：流程圖面板 (佔據 7 欄) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        稅務判定流程圖
+                    </h2>
+                    <span class="text-xs font-medium px-2.5 py-1 bg-brand-100 text-brand-700 rounded-full">2026年標準</span>
+                </div>
+                
+                <div class="p-6 overflow-x-auto flex justify-center">
+                    <div class="mermaid">
+                        %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#94a3b8', 'textColor': '#334155', 'fontFamily': '"Noto Sans TC", sans-serif'}}}%%
+                        graph TD
+                            A([領取死亡理賠金]) --> B{"是否明顯避稅？<br/>(高齡/重病/舉債投保)"}
+                            B -- 是 --> C[🛑 補徵遺產稅<br/>違反實質課稅原則]
+                            B -- 否 --> D{"要保人 與 被保險人<br/>是否為同一人？"}
+                            
+                            D -- 是 --> E[✅ 完全免稅<br/>免遺產稅、免所得稅]
+                            D -- 否 --> F{"進入最低稅負制：<br/>理賠總額是否超過 3,740 萬？"}
+                            
+                            F -- 否 --> G[✅ 免計入所得<br/>未達課稅門檻]
+                            F -- 是 --> H[⚠️ 扣除 3,740 萬後<br/>餘額納入基本所得額課稅]
+                            
+                            classDef default fill:#fff,stroke:#cbd5e1,stroke-width:1.5px,rx:8px,ry:8px;
+                            classDef decision fill:#f0f9ff,stroke:#0ea5e9,stroke-width:2px,rx:8px,ry:8px;
+                            classDef danger fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#b91c1c,rx:8px,ry:8px;
+                            classDef success fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#15803d,rx:8px,ry:8px;
+                            classDef warning fill:#fffbeb,stroke:#f59e0b,stroke-width:2px,color:#b45309,rx:8px,ry:8px;
+
+                            class B,D,F decision;
+                            class C danger;
+                            class E,G success;
+                            class H warning;
+                    </div>
+                </div>
+                <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 text-xs text-slate-500">
+                    ※ 註：最低稅負制之死亡給付免稅額度目前已由 3,330 萬調高至 3,740 萬元。
+                </div>
+            </div>
+
+            <!-- 右側：互動檢測面板 (佔據 5 欄) -->
+            <div class="lg:col-span-5 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden relative">
+                <!-- 裝飾用頂部色條 -->
+                <div class="h-2 bg-gradient-to-r from-brand-500 to-indigo-500 w-full"></div>
+                
+                <div class="p-6 md:p-8">
+                    <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        自我檢測
+                    </h2>
+
+                    <div id="quiz-container" class="space-y-6">
+                        <!-- 問題一 -->
+                        <div class="question-block" id="q1-block">
+                            <label class="block text-sm font-semibold text-slate-700 mb-3 leading-relaxed">
+                                1. 投保時，被保險人是否處於重病、極度高齡，或是透過短期密集舉債來購買此保單？
+                            </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="handleAnswer('q1', 'yes')" class="group relative px-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-medium text-slate-600 hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 active:scale-[0.98]">
+                                    是
+                                </button>
+                                <button onclick="handleAnswer('q1', 'no')" class="group relative px-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-medium text-slate-600 hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 active:scale-[0.98]">
+                                    否
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 問題二 -->
+                        <div class="question-block hidden animate-fade-in" id="q2-block">
+                            <label class="block text-sm font-semibold text-slate-700 mb-3 leading-relaxed">
+                                2. 這張保單的「要保人(付錢的人)」與「被保險人(出事的人)」是同一個人嗎？
+                            </label>
+                            <div class="grid grid-cols-1 gap-3">
+                                <button onclick="handleAnswer('q2', 'yes')" class="group relative px-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-medium text-slate-600 hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 active:scale-[0.98] flex items-center justify-between">
+                                    <span>是 (同一人)</span>
+                                    <span class="text-xs text-slate-400 font-normal">例: 爸爸幫自己買</span>
+                                </button>
+                                <button onclick="handleAnswer('q2', 'no')" class="group relative px-4 py-3 bg-white border-2 border-slate-200 rounded-xl font-medium text-slate-600 hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-brand-500/20 active:scale-[0.98] flex items-center justify-between">
+                                    <span>否 (不同人)</span>
+                                    <span class="text-xs text-slate-400 font-normal">例: 媽媽出錢幫爸爸買</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 問題三 -->
+                        <div class="question-block hidden animate-fade-in" id="q3-block">
+                            <label class="block text-sm font-semibold text-slate-700 mb-3 leading-relaxed" for="claimAmount">
+                                3. 該申報戶當年度領取的所有死亡理賠金，總額約為多少？
+                            </label>
+                            <div class="relative mt-2 rounded-md shadow-sm">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                                    <span class="text-slate-400 font-medium">NT$</span>
+                                </div>
+                                <input type="number" id="claimAmount" class="block w-full rounded-xl border-2 border-slate-200 pl-14 pr-12 py-3 text-slate-900 focus:border-brand-500 focus:ring-0 sm:text-base font-medium transition-colors" placeholder="請輸入金額" oninput="checkAmount()">
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                                    <span class="text-slate-500 font-medium">萬元</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最終結果顯示區 -->
+                    <div id="final-result" class="hidden mt-8 animate-fade-in rounded-xl p-5 border-2">
+                        <!-- 結果內容由 JS 動態生成 -->
+                    </div>
+                    
+                    <!-- 重新檢測按鈕 -->
+                    <button id="reset-btn" onclick="resetForm()" class="hidden w-full mt-6 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        重新檢測
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 初始化 Mermaid 流程圖
+        mermaid.initialize({ startOnLoad: true });
+
+        // 共用樣式類別
+        const selectedBtnClass = ['border-brand-500', 'bg-brand-50', 'text-brand-700', 'ring-2', 'ring-brand-500/20'];
+        const defaultBtnClass = ['border-slate-200', 'bg-white', 'text-slate-600'];
+
+        function handleAnswer(question, answer) {
+            // 更新按鈕視覺狀態
+            const container = document.getElementById(`${question}-block`);
+            const buttons = container.querySelectorAll('button');
+            
+            buttons.forEach(btn => {
+                btn.classList.remove(...selectedBtnClass);
+                btn.classList.add(...defaultBtnClass);
+            });
+            
+            // 找出被點擊的按鈕並加上選中狀態
+            const clickedBtn = event.currentTarget;
+            clickedBtn.classList.remove(...defaultBtnClass);
+            clickedBtn.classList.add(...selectedBtnClass);
+
+            const resultBox = document.getElementById('final-result');
+            const resetBtn = document.getElementById('reset-btn');
+            const q2Block = document.getElementById('q2-block');
+            const q3Block = document.getElementById('q3-block');
+
+            // 處理 Q1 邏輯
+            if (question === 'q1') {
+                if (answer === 'yes') {
+                    q2Block.classList.add('hidden');
+                    q3Block.classList.add('hidden');
+                    showResult('danger', '補徵遺產稅！', '國稅局將依「實質課稅原則」判定為惡意避稅，將此筆理賠金列入遺產總額課稅。');
+                } else {
+                    resultBox.classList.add('hidden');
+                    resetBtn.classList.add('hidden');
+                    q3Block.classList.add('hidden');
+                    q2Block.classList.remove('hidden');
+                }
+            } 
+            // 處理 Q2 邏輯
+            else if (question === 'q2') {
+                if (answer === 'yes') {
+                    q3Block.classList.add('hidden');
+                    showResult('success', '完全免稅！', '要保人與被保險人相同，理賠金免計入遺產，且無最低稅負制問題，是最安全的做法。');
+                } else {
+                    resultBox.classList.add('hidden');
+                    resetBtn.classList.add('hidden');
+                    q3Block.classList.remove('hidden');
+                }
+            }
+        }
+
+        // 處理 Q3 金額輸入邏輯
+        function checkAmount() {
+            const amountInput = document.getElementById('claimAmount');
+            const amount = parseFloat(amountInput.value);
+            
+            if (isNaN(amount) || amount === 0) {
+                document.getElementById('final-result').classList.add('hidden');
+                document.getElementById('reset-btn').classList.add('hidden');
+                return;
+            }
+
+            if (amount <= 3740) {
+                showResult('success', '免計入基本所得額！', '金額未超過 3,740 萬元之免稅門檻，無需繳納最低稅負。');
+            } else {
+                const extra = amount - 3740;
+                showResult('warning', '注意最低稅負！', `超過門檻！有 <span class="font-bold text-amber-700 bg-amber-100 px-1 rounded">${extra.toLocaleString()} 萬元</span> 需計入受益人個人的「基本所得額」，請留意是否會觸發 20% 的所得稅。`);
+            }
+        }
+
+        // 統一樣式顯示結果區塊
+        function showResult(type, title, description) {
+            const resultBox = document.getElementById('final-result');
+            resultBox.className = 'mt-8 animate-fade-in rounded-xl p-5 border-2 block'; // 重置基礎樣式並顯示
+            
+            let icon, colorClasses;
+
+            switch(type) {
+                case 'danger':
+                    colorClasses = 'bg-red-50 border-red-200 text-red-800';
+                    icon = `<svg class="w-6 h-6 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
+                    break;
+                case 'success':
+                    colorClasses = 'bg-green-50 border-green-200 text-green-800';
+                    icon = `<svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    break;
+                case 'warning':
+                    colorClasses = 'bg-amber-50 border-amber-200 text-amber-800';
+                    icon = `<svg class="w-6 h-6 text-amber-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    break;
+            }
+
+            resultBox.classList.add(...colorClasses.split(' '));
+            
+            resultBox.innerHTML = `
+                <div class="flex items-start gap-3">
+                    ${icon}
+                    <div>
+                        <h3 class="font-bold text-lg mb-1">${title}</h3>
+                        <p class="text-sm opacity-90 leading-relaxed">${description}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('reset-btn').classList.remove('hidden');
+        }
+
+        // 重置表單狀態
+        function resetForm() {
+            // 清除按鈕選取狀態
+            document.querySelectorAll('button').forEach(btn => {
+                if(btn.id !== 'reset-btn') {
+                    btn.classList.remove(...selectedBtnClass);
+                    btn.classList.add(...defaultBtnClass);
+                }
+            });
+            
+            // 清除輸入框
+            document.getElementById('claimAmount').value = '';
+            
+            // 隱藏區塊
+            document.getElementById('q2-block').classList.add('hidden');
+            document.getElementById('q3-block').classList.add('hidden');
+            document.getElementById('final-result').classList.add('hidden');
+            document.getElementById('reset-btn').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
